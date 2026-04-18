@@ -1,0 +1,23 @@
+{
+  "name": "personal-study",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "db:seed": "node scripts/seed.js",
+    "db:reset": "node scripts/seed.js --reset"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.17.2",
+    "next": "^15.1.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.18.0",
+    "eslint-config-next": "^15.1.6"
+  }
+}
