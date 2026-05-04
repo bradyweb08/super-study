@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { addCardAction, deleteCardAction, deleteDeckAction, importCardsAction, updateCardAction } from "@/app/actions";
+import SpanishTextField from "@/components/SpanishTextField";
 import { requireUser } from "@/lib/auth";
 import { getCards, getDeck } from "@/lib/db";
 
@@ -67,11 +68,11 @@ export default async function DeckPage({ params }) {
             <input name="deckId" type="hidden" value={deck.id} />
             <label>
               Term
-              <input name="term" required />
+              <SpanishTextField name="term" required />
             </label>
             <label>
               Definition
-              <textarea name="definition" rows="4" required />
+              <SpanishTextField textarea name="definition" rows="4" required />
             </label>
             <button className="button primary" type="submit">
               Add card
@@ -93,7 +94,8 @@ export default async function DeckPage({ params }) {
             </label>
             <label>
               Cards
-              <textarea
+              <SpanishTextField
+                textarea
                 name="cards"
                 rows="8"
                 placeholder={'term,definition\nterm - definition\nterm\tdefinition'}
@@ -141,11 +143,17 @@ export default async function DeckPage({ params }) {
                     <input name="cardId" type="hidden" value={card.id} />
                     <label>
                       Term
-                      <input name="term" defaultValue={card.term} required />
+                      <SpanishTextField name="term" defaultValue={card.term} required />
                     </label>
                     <label>
                       Definition
-                      <textarea name="definition" defaultValue={card.definition} rows="3" required />
+                      <SpanishTextField
+                        textarea
+                        name="definition"
+                        defaultValue={card.definition}
+                        rows="3"
+                        required
+                      />
                     </label>
                     <button className="button primary" type="submit">
                       Save changes

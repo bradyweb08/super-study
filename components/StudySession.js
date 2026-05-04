@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
+import SpanishTextField from "@/components/SpanishTextField";
 import { gradingOptions, isTypedCorrect } from "@/lib/grading";
 
 function shuffle(items) {
@@ -359,8 +360,9 @@ export default function StudySession({ deck, cards, mode }) {
           >
             <p className="prompt-label">Type the {answerLabelFor(answerSide)}</p>
             <h2>{promptText}</h2>
-            <input
+            <SpanishTextField
               autoComplete="off"
+              className="typed-answer-input"
               disabled={Boolean(result)}
               onChange={(event) => setTypedAnswer(event.target.value)}
               placeholder="Your answer"
