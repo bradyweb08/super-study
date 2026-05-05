@@ -51,16 +51,18 @@ async function submitReview(card, mode, answer, expected, correct) {
   });
 }
 
+function buildInitialQueue(cards, mode, studyScope) {
+  const due = cards.filter((card) => card.due || card.weak);
+  const source = mode === "learn" && studyScope === "all" ? cards : due.length ? due : cards;
+  if (mode !== "learn") return source;
+  return source.map((card) => ({
+    ...card,
+    practiceStage: firstLearnStage(card)
+  }));
+}
+
 export default function StudySession({ deck, cards, mode, studyScope = "targeted" }) {
-  const initialQueue = useMemo(() => {
-    const due = cards.filter((card) => card.due || card.weak);
-    const source = mode === "learn" && studyScope === "all" ? cards : due.length ? due : cards;
-    if (mode !== "learn") return source;
-    return source.map((card) => ({
-      ...card,
-      practiceStage: firstLearnStage(card)
-    }));
-  }, [cards, mode, studyScope]);
+  const initialQueue = useMemo(() => buildInitialQueue(cards, mode, studyScope), [cards, mode, studyScope]);
 
   const [queue, setQueue] = useState(initialQueue);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -126,9 +128,15 @@ export default function StudySession({ deck, cards, mode, studyScope = "targeted
           extra practice.
         </p>
         <div className="row-actions">
-          <Link className="button primary" href={restartHref}>
-            {mode === "learn" ? "Study whole deck again" : "Study again"}
-          </Link>
+          {mode === "learn" && studyScope === "all" ? (
+            <button className="button primary" onClick={restartSession} type="button">
+              Study whole deck again
+            </button>
+          ) : (
+            <Link className="button primary" href={restartHref}>
+              {mode === "learn" ? "Study whole deck again" : "Study again"}
+            </Link>
+          )}
           {mode === "learn" ? (
             <Link className="button" href={`/decks/${deck.id}/learn`}>
               Focus due and weak
@@ -147,6 +155,18 @@ export default function StudySession({ deck, cards, mode, studyScope = "targeted
       window.clearTimeout(autoAdvanceTimer.current);
       autoAdvanceTimer.current = null;
     }
+  }
+
+  function restartSession() {
+    clearAutoAdvance();
+    setQueue(buildInitialQueue(cards, mode, studyScope));
+    setCurrentIndex(0);
+    setFlipped(false);
+    setTypedAnswer("");
+    setResult(null);
+    setHasShuffled(false);
+    setSessionStats({ correct: 0, missed: 0, completed: 0 });
+    committingReview.current = false;
   }
 
   function moveNext(wasCorrect, reviewCard = card) {
