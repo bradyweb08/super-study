@@ -51,16 +51,16 @@ async function submitReview(card, mode, answer, expected, correct) {
   });
 }
 
-export default function StudySession({ deck, cards, mode }) {
+export default function StudySession({ deck, cards, mode, studyScope = "targeted" }) {
   const initialQueue = useMemo(() => {
     const due = cards.filter((card) => card.due || card.weak);
-    const source = due.length ? due : cards;
+    const source = mode === "learn" && studyScope === "all" ? cards : due.length ? due : cards;
     if (mode !== "learn") return source;
     return source.map((card) => ({
       ...card,
       practiceStage: firstLearnStage(card)
     }));
-  }, [cards, mode]);
+  }, [cards, mode, studyScope]);
 
   const [queue, setQueue] = useState(initialQueue);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -108,6 +108,15 @@ export default function StudySession({ deck, cards, mode }) {
   if (!card) {
     const total = sessionStats.correct + sessionStats.missed;
     const accuracy = total ? Math.round((sessionStats.correct / total) * 100) : 0;
+    const restartHref =
+      mode === "learn"
+        ? `/decks/${deck.id}/learn?scope=all`
+        : mode === "flashcards"
+          ? `/decks/${deck.id}/flashcards`
+          : mode === "multiple"
+            ? `/decks/${deck.id}/multiple-choice`
+            : `/decks/${deck.id}/typed`;
+
     return (
       <section className="session-complete">
         <p className="eyebrow">Session complete</p>
@@ -117,9 +126,14 @@ export default function StudySession({ deck, cards, mode }) {
           extra practice.
         </p>
         <div className="row-actions">
-          <Link className="button primary" href={`/decks/${deck.id}/learn`}>
-            Review again
+          <Link className="button primary" href={restartHref}>
+            {mode === "learn" ? "Study whole deck again" : "Study again"}
           </Link>
+          {mode === "learn" ? (
+            <Link className="button" href={`/decks/${deck.id}/learn`}>
+              Focus due and weak
+            </Link>
+          ) : null}
           <Link className="button" href={`/decks/${deck.id}`}>
             Back to deck
           </Link>

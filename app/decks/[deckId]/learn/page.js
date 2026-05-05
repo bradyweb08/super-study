@@ -7,13 +7,15 @@ import { getDeck, getStudySnapshot } from "@/lib/db";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export default async function LearnPage({ params }) {
+export default async function LearnPage({ params, searchParams }) {
   const user = await requireUser();
   const { deckId } = await params;
+  const query = await searchParams;
   const deck = await getDeck(deckId, user.id);
   if (!deck) notFound();
 
   const cards = await getStudySnapshot(deck.id, user.id);
+  const studyScope = query?.scope === "all" ? "all" : "targeted";
 
   return (
     <main className="page study-page">
@@ -26,7 +28,7 @@ export default async function LearnPage({ params }) {
           Manage
         </Link>
       </header>
-      <StudySession deck={deck} cards={cards} mode="learn" />
+      <StudySession deck={deck} cards={cards} mode="learn" studyScope={studyScope} />
     </main>
   );
 }
