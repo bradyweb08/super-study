@@ -52,9 +52,10 @@ async function submitReview(card, mode, answer, expected, correct) {
 }
 
 function buildInitialQueue(cards, mode, studyScope) {
+  if (mode !== "learn") return cards;
+
   const due = cards.filter((card) => card.due || card.weak);
   const source = mode === "learn" && studyScope === "all" ? cards : due.length ? due : cards;
-  if (mode !== "learn") return source;
   return source.map((card) => ({
     ...card,
     practiceStage: firstLearnStage(card)
